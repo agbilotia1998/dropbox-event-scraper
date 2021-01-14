@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "html-to-text": "^6.0.0",
+    "json2csv": "^5.0.5",
     "node-fetch": "^2.6.1"
   }
 }

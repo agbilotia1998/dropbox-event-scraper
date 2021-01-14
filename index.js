@@ -1,5 +1,13 @@
-let fetch = require("node-fetch")
+const fetch = require("node-fetch")
+const json2csv = require("json2csv")
+const { htmlToText } = require('html-to-text');
+const fs = require('fs');
+const fastcsv= require("fast-csv");
+
 let options = require("./options.json")
+
+const PAGE_SIZE = 250
+const CSV_OUTPUT_PATH = './output.csv'
 
 function replacer(attr) {
     const now = new Date()
@@ -10,16 +18,35 @@ function replacer(attr) {
 }
 
 get_data = async () => {
-    const page_size = 250
-
-    options["body"] = options["body"].replace(/page_size=([\d]*)/, "page_size=".concat(page_size.toString(10)))
+    options["body"] = options["body"].replace(/page_size=([\d]*)/, "page_size=".concat(PAGE_SIZE.toString(10)))
     options["body"] = options["body"].replace(/timestamp=([\d]*)/, replacer("timestamp="));
     
     let data = await fetch("https://www.dropbox.com/events/ajax", options);
 
-    data.json().then(json => {
-        console.log(json.events)
-    })
+    return data.json();
 }
 
-get_data();
+get_data().then(data => {
+    const fields = ['name', 'timestamp', 'ago', {
+        label: 'blurb',
+        value: (item) => {
+            return htmlToText(item['blurb'])
+        }
+    }];
+    const opts = { fields };
+
+    try {
+        const parser = new json2csv.Parser(opts);
+        const csvData = parser.parse(data.events);
+
+        fs.writeFile(CSV_OUTPUT_PATH, csvData, (err) => {
+            if(err) {
+                console.error(err);
+            }
+            console.log(csvData);
+            console.log(data.events.length)
+        });
+    } catch (err) {
+        console.error(err);
+    }
+});
