@@ -2,7 +2,6 @@ const fetch = require("node-fetch")
 const json2csv = require("json2csv")
 const { htmlToText } = require('html-to-text');
 const fs = require('fs');
-const fastcsv= require("fast-csv");
 
 let options = require("./options.json")
 
