@@ -26,7 +26,7 @@ get_data = async () => {
 }
 
 get_data().then(data => {
-    const fields = ['name', 'timestamp', 'ago', {
+    const fields = ['name', 'timestamp', 'ago', 'event_blurb', {
         label: 'blurb',
         value: (item) => {
             return htmlToText(item['blurb'])
