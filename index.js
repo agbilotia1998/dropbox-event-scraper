@@ -30,7 +30,7 @@ get_data = async () => {
     return data.json();
 }
 
-async function main() {
+main = async() => {
     return get_data().then(data => {
         const fields = ['name', 'timestamp', 'ago', 'event_blurb', {
             label: 'blurb',
@@ -44,7 +44,7 @@ async function main() {
             const parser = new json2csv.Parser(opts);
             const csvData = parser.parse(data.events);
             let totalEvents = data.events.length
-            console.log(totalEvents)
+            console.log("Batch size: ", totalEvents)
             epochTime = data.events[totalEvents - 1]['timestamp']
 
             fs.appendFile(CSV_OUTPUT_PATH, csvData, (err) => {
@@ -59,7 +59,7 @@ async function main() {
     });
 }
 
-async function entryPoint() {
+entryPoint = async() => {
     fs.exists(CSV_OUTPUT_PATH, function(exists) {
         if(exists) {
             fs.unlinkSync(CSV_OUTPUT_PATH)
@@ -72,4 +72,6 @@ async function entryPoint() {
     }
 }
 
-entryPoint()
+entryPoint().then(() => {
+    console.log("Fetched all the data, the last batch may have some extra data prior to mentioned start date.")
+})
