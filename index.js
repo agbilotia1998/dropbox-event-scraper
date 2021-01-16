@@ -11,7 +11,7 @@ const CSV_OUTPUT_PATH = './output.csv'
 const START_DATE = 'November 10, 2020 00:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'January 14, 2021 00:00:00 GMT+00:00'
+const END_DATE = 'January 16, 2021 00:00:00 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -34,6 +34,9 @@ let getData = async () => {
 
 let parseAndSave = async(data) => {
     return data.then(data => {
+        data.events = data.events.filter((eventDetail) => {
+            return eventDetail['is_dup'] === false
+        })
         const fields = ['name', 'timestamp', 'ago', 'event_blurb', {
             label: 'blurb',
             value: (item) => {
