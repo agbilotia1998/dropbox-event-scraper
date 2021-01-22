@@ -6,12 +6,12 @@ const fs = require('fs');
 
 const options = require("./options.json")
 
-const PAGE_SIZE = 3
+const PAGE_SIZE = 250
 const CSV_OUTPUT_PATH = './output.csv'
 const START_DATE = 'January 10, 2021 00:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'January 17, 2021 00:00:00 GMT+00:00'
+const END_DATE = 'January 15, 2021 00:00:00 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -35,25 +35,32 @@ let getData = async () => {
 }
 
 let getEventText = async (url) => {
-    let optionsGetRequest = {...options}
+    try {
+        let optionsGetRequest = {...options}
 
-    optionsGetRequest.method = 'GET'
-    delete optionsGetRequest['body']
+        optionsGetRequest.method = 'GET'
+        delete optionsGetRequest['body']
 
-    let data = await fetch(url, optionsGetRequest)
-    let text = await data.text()
-    let regex = /(.*?)InitReact(.*?)event_details(.*?)"entries":(.*?), "changesetId"/g
-    let match = regex.exec(text)
-    if(match != null) {
-        let jsonResponse = JSON.parse(match[4])
+        let data = await fetch(url, optionsGetRequest)
+        let text = await data.text()
+        let regex = /InitReact(.*?)event_details(.*?)"entries":(.*?), "changesetId"/g
+        let match = regex.exec(text)
+        if (match != null) {
+            let jsonResponse = JSON.parse(match[3])
 
-        return new Promise(resolve => {
-            if(jsonResponse.length > 0 && jsonResponse[0].fileUrl != null) {
-                resolve(jsonResponse[0].fileUrl.slice(2))
-            } else {
-                resolve("")
-            }
-        })
+            return new Promise(resolve => {
+                if (jsonResponse.length > 0 && jsonResponse[0].fileUrl != null) {
+                    resolve(jsonResponse[0].fileUrl)
+                } else {
+                    resolve("")
+                }
+            })
+        } else {
+            return new Promise(resolve => resolve(""))
+        }
+    } catch(err) {
+        console.error(err.message)
+        return new Promise(resolve => resolve(""))
     }
 }
 
@@ -64,21 +71,35 @@ let parseAndSave = async(data) => {
                 return eventDetail['is_dup'] === false && eventDetail['timestamp'] >= START_EPOCH_TIME
             })
 
-            const promises = data.events.map(async (eventDetail) => {
-                let regex = /(.*?)href='(.*?)'/
+            for(const eventDetail of data.events) {
+                let regex = /href='([^https:].*?)'/
 
                 if (regex.exec(eventDetail['event_blurb']) != null) {
-                    let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[2])
-                    console.log(dataLink)
+                    let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[1])
+                    console.log("Link: " + dataLink)
 
                     eventDetail['dataLink'] = dataLink
-
-                    return new Promise(resolve => {
-                        resolve(dataLink)
-                    })
                 }
-            })
-            await Promise.all(promises)
+            }
+
+            // const promises = data.events.map(async (eventDetail) => {
+            //     let regex = /href='([^https:].*?)'/
+            //
+            //     if (regex.exec(eventDetail['event_blurb']) != null) {
+            //         let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[1])
+            //         // console.log("Link: " + dataLink)
+            //         console.log(counter)
+            //         counter++
+            //
+            //         eventDetail['dataLink'] = dataLink
+            //
+            //         return new Promise(resolve => {
+            //             resolve(dataLink)
+            //         })
+            //     }
+            // })
+            // await Promise.all(promises)
+
 
             const fields = ['name', 'timestamp', 'ago', 'event_blurb', {
                 label: 'blurb',
@@ -103,7 +124,7 @@ let parseAndSave = async(data) => {
 
             return 0;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
         }
     }).catch(err => {
        if(err.message == 403) {
