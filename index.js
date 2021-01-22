@@ -6,9 +6,9 @@ const fs = require('fs');
 
 const options = require("./options.json")
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = 3
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'January 16, 2021 00:00:00 GMT+00:00'
+const START_DATE = 'January 10, 2021 00:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
 const END_DATE = 'January 17, 2021 00:00:00 GMT+00:00'
@@ -35,7 +35,7 @@ let getData = async () => {
 }
 
 let getEventText = async (url) => {
-    let optionsGetRequest = options
+    let optionsGetRequest = {...options}
 
     optionsGetRequest.method = 'GET'
     delete optionsGetRequest['body']
@@ -61,7 +61,7 @@ let parseAndSave = async(data) => {
     return data.then(async data => {
         try {
             data.events = data.events.filter((eventDetail) => {
-                return eventDetail['is_dup'] === false
+                return eventDetail['is_dup'] === false && eventDetail['timestamp'] >= START_EPOCH_TIME
             })
 
             const promises = data.events.map(async (eventDetail) => {
@@ -135,5 +135,5 @@ let main = async() => {
 }
 
 main().then(() => {
-    console.log("Fetched all the data, the last batch may have some extra data prior to mentioned start date.")
+    console.log("Fetched all the data.")
 })
