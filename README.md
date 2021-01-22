@@ -2,8 +2,6 @@
 
 * Install
   
-  * [Node.js]([Download | Node.js](https://nodejs.org/en/download/))
-  
   * [Docker]([Get Docker | Docker Documentation](https://docs.docker.com/get-docker/))
 
 * Steps
