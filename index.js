@@ -8,10 +8,10 @@ const options = require("./options.json")
 
 const PAGE_SIZE = 25
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'January 18, 2021 00:00:00 GMT+00:00'
+const START_DATE = 'January 16, 2021 00:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'January 22, 2021 00:00:00 GMT+00:00'
+const END_DATE = 'January 17, 2021 00:00:00 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -28,6 +28,9 @@ let getData = async () => {
     console.log(date)
 
     let data = await fetch("https://www.dropbox.com/events/ajax", options);
+    if(data.status === 403) {
+        throw new Error(data.status);
+    }
     return data.json();
 }
 
@@ -45,7 +48,11 @@ let getEventText = async (url) => {
         let jsonResponse = JSON.parse(match[4])
 
         return new Promise(resolve => {
-            resolve(jsonResponse[0].fileUrl.slice(2))
+            if(jsonResponse.length > 0 && jsonResponse[0].fileUrl != null) {
+                resolve(jsonResponse[0].fileUrl.slice(2))
+            } else {
+                resolve("")
+            }
         })
     }
 }
@@ -99,6 +106,9 @@ let parseAndSave = async(data) => {
             console.error(err);
         }
     }).catch(err => {
+       if(err.message == 403) {
+           throw Error("Options.json seems outdated, authentication error")
+       }
     });
 }
 
@@ -119,6 +129,7 @@ let main = async() => {
             await sleep(5000)
         } catch (err) {
             console.log(err.message)
+            break
         }
     }
 }
