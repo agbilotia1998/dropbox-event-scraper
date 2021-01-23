@@ -8,7 +8,7 @@ const options = require("./options.json")
 
 const PAGE_SIZE = 250
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'January 10, 2021 00:00:00 GMT+00:00'
+const START_DATE = 'January 10, 2020 00:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
 const END_DATE = 'January 15, 2021 00:00:00 GMT+00:00'
@@ -50,6 +50,7 @@ let getEventText = async (url) => {
 
             return new Promise(resolve => {
                 if (jsonResponse.length > 0 && jsonResponse[0].fileUrl != null) {
+                    console.log(jsonResponse[0])
                     resolve(jsonResponse[0].fileUrl)
                 } else {
                     resolve("")
@@ -76,29 +77,29 @@ let parseAndSave = async(data) => {
 
                 if (regex.exec(eventDetail['event_blurb']) != null) {
                     let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[1])
-                    console.log("Link: " + dataLink)
 
                     eventDetail['dataLink'] = dataLink
                 }
             }
 
-            // const promises = data.events.map(async (eventDetail) => {
-            //     let regex = /href='([^https:].*?)'/
-            //
-            //     if (regex.exec(eventDetail['event_blurb']) != null) {
-            //         let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[1])
-            //         // console.log("Link: " + dataLink)
-            //         console.log(counter)
-            //         counter++
-            //
-            //         eventDetail['dataLink'] = dataLink
-            //
-            //         return new Promise(resolve => {
-            //             resolve(dataLink)
-            //         })
-            //     }
-            // })
-            // await Promise.all(promises)
+            /*
+            Async fetching of event details
+            const promises = data.events.map(async (eventDetail) => {
+                let regex = /href='([^https:].*?)'/
+
+                if (regex.exec(eventDetail['event_blurb']) != null) {
+                    let dataLink = await getEventText("https://www.dropbox.com" + regex.exec(eventDetail['event_blurb'])[1])
+                    console.log("Link: " + dataLink)
+
+                    eventDetail['dataLink'] = dataLink
+
+                    return new Promise(resolve => {
+                        resolve(dataLink)
+                    })
+                }
+            })
+            await Promise.all(promises)
+            */
 
 
             const fields = ['name', 'timestamp', 'ago', 'event_blurb', {
