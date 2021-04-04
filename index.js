@@ -8,10 +8,10 @@ const options = require("./options.json")
 
 const PAGE_SIZE = 250
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'January 10, 2020 00:00:00 GMT+00:00'
+const START_DATE = 'March 17, 2021 20:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'January 15, 2021 00:00:00 GMT+00:00'
+const END_DATE = 'March 17, 2021 21:59:59 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -49,12 +49,13 @@ let getEventText = async (url) => {
             let jsonResponse = JSON.parse(match[3])
 
             return new Promise(resolve => {
-                if (jsonResponse.length > 0 && jsonResponse[0].fileUrl != null) {
-                    console.log(jsonResponse[0])
-                    resolve(jsonResponse[0].fileUrl)
-                } else {
-                    resolve("")
+                for (const response of jsonResponse) {
+                    if(response.fileUrl != null) {
+                        console.log(response)
+                        resolve(response.fileUrl)
+                    }
                 }
+                resolve("")
             })
         } else {
             return new Promise(resolve => resolve(""))
