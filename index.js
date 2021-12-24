@@ -8,10 +8,10 @@ const options = require("./options.json")
 
 const PAGE_SIZE = 250
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'March 17, 2021 20:00:00 GMT+00:00'
+const START_DATE = 'December 10, 2021 20:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'March 17, 2021 21:59:59 GMT+00:00'
+const END_DATE = 'December 20, 2021 21:59:59 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -43,7 +43,7 @@ let getEventText = async (url) => {
 
         let data = await fetch(url, optionsGetRequest)
         let text = await data.text()
-        let regex = /InitReact(.*?)event_details(.*?)"entries":(.*?), "changesetId"/g
+        let regex = /InitReact(.*?)event_details(.*?)"entries":\s(\[.*?\]),/g
         let match = regex.exec(text)
         if (match != null) {
             let jsonResponse = JSON.parse(match[3])
