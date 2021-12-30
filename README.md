@@ -56,6 +56,13 @@
   
   * paste this into the options.json file (do not share this file publicly)
   
+  * Set date ranges in `index.js` file in the following locations
+    
+    * ```
+      const START_DATE = 'January 16, 2021 00:00:00 GMT+00:00'
+      const END_DATE = 'January 17, 2021 00:00:00 GMT+00:00'
+      ```
+  
   * Open a command line inside the repo
     
     * For Windows
