@@ -53,8 +53,11 @@
           "mode": "cors"
         }
         ```
-      * Add this user-agent manually in headers => "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" <br>
-        Fetch options object finally look like this:
+      * Add this user-agent manually in headers: <br>
+        * Mac OS => "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" <br>
+        * Windows => "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36" <br>
+        
+        Fetch options object finally look like this(for Mac OS):
         ```
         {
           "headers": {
