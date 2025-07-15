@@ -1,17 +1,18 @@
-const fetch = require("node-fetch")
-const json2csv = require("json2csv")
+const fetch = require("node-fetch");
+const json2csv = require("json2csv");
 const { htmlToText } = require('html-to-text');
 const sleep = require('util').promisify(setTimeout);
 const fs = require('fs');
+const { decode } = require('./decoder.js');
 
 const options = require("./options.json")
 
 const PAGE_SIZE = 250
 const CSV_OUTPUT_PATH = './output.csv'
-const START_DATE = 'December 10, 2021 20:00:00 GMT+00:00'
+const START_DATE = 'July 08, 2025 20:00:00 GMT+00:00'
 const START_EPOCH_TIME = Math.round(new Date(START_DATE).getTime() / 1000)
 
-const END_DATE = 'December 20, 2021 21:59:59 GMT+00:00'
+const END_DATE = 'July 15, 2025 21:59:59 GMT+00:00'
 const END_EPOCH_TIME = Math.round(new Date(END_DATE).getTime() / 1000)
 let epochTime = END_EPOCH_TIME
 
@@ -42,24 +43,39 @@ let getEventText = async (url) => {
         delete optionsGetRequest['body']
 
         let data = await fetch(url, optionsGetRequest)
-        let text = await data.text()
-        let regex = /InitReact(.*?)event_details(.*?)"entries":\s(\[.*?\]),/g
-        let match = regex.exec(text)
-        if (match != null) {
-            let jsonResponse = JSON.parse(match[3])
+        let html = await data.text()
+        // let regex = /InitReact(.*?)event_details(.*?)"entries":\s(\[.*?\]),/g
+        // let match = regex.exec(text)
+        // if (match != null) {
+        //     let jsonResponse = JSON.parse(match[3])
 
-            return new Promise(resolve => {
-                for (const response of jsonResponse) {
-                    if(response.fileUrl != null) {
-                        console.log(response)
-                        resolve(response.fileUrl)
-                    }
-                }
-                resolve("")
-            })
-        } else {
-            return new Promise(resolve => resolve(""))
+        //     return new Promise(resolve => {
+        //         for (const response of jsonResponse) {
+        //             if(response.fileUrl != null) {
+        //                 console.log(response)
+        //                 resolve(response.fileUrl)
+        //             }
+        //         }
+        //         resolve("")
+        //     })
+        // } else {
+        //     return new Promise(resolve => resolve(""))
+        // }
+
+
+        const regex = /edisonModule\.Edison\.registerStreamedPrefetch\(\s*"([^"]+)"\s*,\s*"([^"]+)"/g;
+        let match;
+        while ((match = regex.exec(html)) !== null) {
+            decodedData = decode(match[2])
+
+            if(decodedData != "") {
+                return new Promise(resolve => {
+                    console.log(decodedData)
+                    resolve(decodedData)
+                })
+            }
         }
+        return new Promise(resolve => resolve(""))
     } catch(err) {
         console.error(err.message)
         return new Promise(resolve => resolve(""))
