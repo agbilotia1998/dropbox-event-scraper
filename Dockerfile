@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:12
+FROM mhart/alpine-node:16
 MAINTAINER Ayush agb.ayushgupta@gmail.com
 
 RUN mkdir -p /scraper
